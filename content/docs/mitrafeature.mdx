@@ -74,7 +74,16 @@ Fitur Mitra dirancang untuk menciptakan struktur pemasaran bertingkat yang seder
 5. Jika valid → role di-upgrade menjadi `Affiliator` (ID: 2)
 6. User dapat mengakses fitur Affiliator & referral link
 
-### C. Alur Komisi (Commission Flow)
+### C. Promosi Manual ke Affiliator (Mitra → Member)
+
+1. Mitra login ke **Mitra Dashboard**
+2. Masuk ke menu **Members**
+3. Pada tabel member, cari member dengan status `User`
+4. Klik tombol aksi **Jadikan Affiliator**
+5. Sistem memverifikasi validitas member
+6. Role member diupdate menjadi `Affiliator` (ID: 2)
+
+### D. Alur Komisi (Commission Flow)
 
 Saat **End User** membeli token melalui referral **Affiliator** (di bawah Mitra):
 
@@ -111,6 +120,7 @@ Base URL: `/api/mitra`
 | GET | `/dashboard` | Statistik Mitra (member & komisi) | Mitra |
 | GET | `/members` | Daftar member & status afiliasi | Mitra |
 | POST | `/members` | Menambah member baru | Mitra |
+| POST | `/members/:id/promote` | Promosi member ke Affiliator | Mitra |
 
 ### File Penting
 
@@ -137,6 +147,7 @@ Base URL: `/api/mitra`
   - Status: `User` vs `Affiliator`
   - Total kontribusi komisi
   - Form **Add Member**
+  - Tombol aksi **Jadikan Affiliator**
 
 ### Admin Panel
 
