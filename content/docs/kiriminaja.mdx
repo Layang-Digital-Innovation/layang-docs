@@ -1,0 +1,361 @@
+---
+title: KiriminAja Integration Guide
+description: Panduan lengkap untuk mengintegrasikan KiriminAja Mitra API ke dalam aplikasi Amoura Skin
+---
+
+# KiriminAja Integration Guide
+
+Panduan lengkap untuk mengintegrasikan KiriminAja Mitra API ke dalam aplikasi Amoura Skin.
+
+<Callout type="info">
+  KiriminAja adalah aggregator logistik yang mendukung berbagai ekspedisi seperti JNE, J&T, SiCepat, AnterAja, dan lainnya dengan fitur COD dan Non-COD.
+</Callout>
+
+---
+
+## Quick Links
+
+<Cards>
+  <Card title="Developer Portal" href="https://developer.kiriminaja.com" />
+  <Card title="Documentation" href="https://developer.kiriminaja.com/docs/introduction" />
+  <Card title="Postman Collection" href="https://developer.kiriminaja.com/postman" />
+  <Card title="Coverage Mapping" href="https://developer.kiriminaja.com/coverage" />
+</Cards>
+
+---
+
+## Daftar Isi
+
+1. [Mendapatkan API Key](#1-mendapatkan-api-key)
+2. [Konfigurasi Environment](#2-konfigurasi-environment)
+3. [Existing Service Implementation](#3-existing-service-implementation)
+4. [API Endpoints](#4-api-endpoints)
+5. [Flow Integrasi](#5-flow-integrasi)
+6. [Webhook Setup](#6-webhook-setup)
+7. [Next Steps](#7-next-steps)
+
+---
+
+## 1. Mendapatkan API Key
+
+<Steps>
+  <Step>
+    ### Register Sandbox Account
+    Kunjungi [https://developer.kiriminaja.com/register](https://developer.kiriminaja.com/register) dan lengkapi proses registrasi.
+  </Step>
+  <Step>
+    ### Login ke Dashboard
+    Login di [https://developer.kiriminaja.com/simulation](https://developer.kiriminaja.com/simulation) dan tunggu proses approval.
+  </Step>
+  <Step>
+    ### Copy API Key
+    Buka menu **Integrasi** dan copy API Key Anda.
+  </Step>
+</Steps>
+
+### Base URLs
+
+| Environment | Base URL |
+| --- | --- |
+| **Sandbox/UAT** | `https://lokal-api-uat.kiriminaja.com` |
+| **Production** | `https://lokal-api.kiriminaja.com` |
+
+---
+
+## 2. Konfigurasi Environment
+
+### File `.env`
+
+```bash
+KIRIMINAJA_API_KEY=your_api_key_here
+KIRIMINAJA_MODE=staging  # atau 'production' untuk live
+```
+
+### File `config/services.php`
+
+```php
+'kiriminaja' => [
+    'api_key' => env('KIRIMINAJA_API_KEY'),
+    'mode' => env('KIRIMINAJA_MODE', 'staging'),
+],
+```
+
+---
+
+## 3. Existing Service Implementation
+
+Project ini sudah memiliki service dasar di `KiriminAjaService.php`:
+
+```php
+<?php
+
+namespace App\Services;
+
+use Illuminate\Support\Facades\Http;
+
+class KiriminAjaService
+{
+    protected $baseUrl;
+    protected $apiKey;
+    protected $mode;
+
+    public function __construct()
+    {
+        $this->mode = config('services.kiriminaja.mode', 'staging');
+        $this->baseUrl = $this->mode === 'production'
+            ? 'https://lokal-api.kiriminaja.com'
+            : 'https://lokal-api-uat.kiriminaja.com';
+        $this->apiKey = config('services.kiriminaja.api_key');
+    }
+
+    // Methods: getProvinces(), getCities(), getDistricts(), checkRates()
+}
+```
+
+### Methods yang Tersedia
+
+| Method | Endpoint | Deskripsi |
+| --- | --- | --- |
+| `getProvinces()` | `/api/mitra/v2/provinces` | Daftar provinsi |
+| `getCities($provinceId)` | `/api/mitra/v2/cities` | Daftar kota/kabupaten |
+| `getDistricts($cityId)` | `/api/mitra/v2/districts` | Daftar kecamatan |
+| `checkRates(...)` | `/api/mitra/v2/shipping_price` | Cek ongkos kirim |
+
+---
+
+## 4. API Endpoints
+
+### 4.1 Coverage Area
+
+<Tabs items={['Get Provinces', 'Get Cities', 'Get Districts']}>
+  <Tab value="Get Provinces">
+    ```http
+    GET /api/mitra/v2/provinces
+    Authorization: Bearer {api_key}
+    ```
+
+    **Response:**
+
+    ```json
+    {
+      "status": true,
+      "method": "provinsis",
+      "text": "Berhasil",
+      "datas": [
+        { "id": 1, "provinsi_name": "Bali" },
+        { "id": 2, "provinsi_name": "Bangka Belitung" }
+      ]
+    }
+    ```
+  </Tab>
+  <Tab value="Get Cities">
+    ```http
+    GET /api/mitra/v2/cities?province_id={id}
+    Authorization: Bearer {api_key}
+    ```
+  </Tab>
+  <Tab value="Get Districts">
+    ```http
+    GET /api/mitra/v2/districts?city_id={id}
+    Authorization: Bearer {api_key}
+    ```
+  </Tab>
+</Tabs>
+
+### 4.2 Check Shipping Rate
+
+```http
+POST /api/mitra/v2/shipping_price
+Authorization: Bearer {api_key}
+Content-Type: application/json
+```
+
+**Request Body:**
+
+```json
+{
+  "origin": "district_id_origin",
+  "destination": "district_id_destination",
+  "weight": 1000,
+  "items": [
+    {
+      "name": "Product Name",
+      "qty": 1,
+      "price": 100000
+    }
+  ]
+}
+```
+
+### 4.3 Create Order
+
+```http
+POST /api/mitra/v2/order
+Authorization: Bearer {api_key}
+Content-Type: application/json
+```
+
+**Request Body:**
+
+```json
+{
+  "courier": "jne",
+  "service": "REG",
+  "origin": 123,
+  "destination": 456,
+  "weight": 1000,
+  "sender_name": "Amoura Skin",
+  "sender_phone": "08123456789",
+  "sender_address": "Jl. Contoh No. 1",
+  "receiver_name": "Customer Name",
+  "receiver_phone": "08198765432",
+  "receiver_address": "Jl. Tujuan No. 2",
+  "item_name": "Skincare Product",
+  "item_value": 150000,
+  "item_qty": 1,
+  "is_cod": false,
+  "cod_value": 0
+}
+```
+
+### 4.4 Tracking
+
+```http
+GET /api/mitra/v2/tracking?awb={no_resi}
+Authorization: Bearer {api_key}
+```
+
+### 4.5 Request Pickup
+
+```http
+POST /api/mitra/v2/pickup/schedule
+Authorization: Bearer {api_key}
+Content-Type: application/json
+```
+
+---
+
+## 5. Flow Integrasi
+
+![Flow Integrasi KiriminAja](/assets/diagram-export-12-30-2025-12_20_18-PM.png)
+
+---
+
+## 6. Webhook Setup
+
+KiriminAja akan mengirim update status pengiriman ke callback URL Anda.
+
+### Register Callback
+
+```http
+POST /api/mitra/v2/callback
+Authorization: Bearer {api_key}
+Content-Type: application/json
+```
+
+**Request Body:**
+
+```json
+{
+  "url": "https://yourdomain.com/api/webhook/kiriminaja"
+}
+```
+
+**Response:**
+
+```json
+{
+  "status": true,
+  "method": "set_callback",
+  "text": "Callback di set ke https://yourdomain.com/api/webhook/kiriminaja"
+}
+```
+
+### Webhook Controller (Laravel)
+
+```php
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+
+class KiriminAjaWebhookController extends Controller
+{
+    public function handle(Request $request)
+    {
+        $payload = $request->all();
+        
+        // Log for debugging
+        \Log::info('KiriminAja Webhook', $payload);
+        
+        // Update order status based on payload
+        // Example: $order->update(['shipping_status' => $payload['status']]);
+        
+        return response()->json(['status' => 'ok']);
+    }
+}
+```
+
+### Webhook Events
+
+| Event | Status | Deskripsi |
+| --- | --- | --- |
+| PICKED | `picked` | Paket sudah dipickup |
+| IN_TRANSIT | `on_progress` | Dalam perjalanan |
+| DELIVERED | `delivered` | Terkirim |
+| RETURNED | `returned` | Dikembalikan |
+
+---
+
+## 7. Next Steps
+
+### ✅ Yang Sudah Ada
+
+- [x] `KiriminAjaService.php` dengan method dasar
+- [x] Config di `services.php`
+
+### 📝 Yang Perlu Ditambahkan
+
+**Extend KiriminAjaService dengan method:**
+
+- [ ] `createOrder()` – Buat pesanan pengiriman
+- [ ] `getTracking()` – Cek status pengiriman
+- [ ] `requestPickup()` – Request pickup kurir
+- [ ] `registerCallback()` – Set webhook URL
+
+**Create Webhook Controller:**
+
+- [ ] Handle status update dari KiriminAja
+- [ ] Update order status di database
+
+**Frontend Integration:**
+
+- [ ] Dropdown provinsi/kota/kecamatan di checkout
+- [ ] Pilihan kurir dengan harga
+- [ ] Tracking page untuk customer
+
+**Database:**
+
+- [ ] Tambah kolom `awb_number` di orders table
+- [ ] Tambah kolom `shipping_status`
+- [ ] Simpan shipping cost
+
+<Callout type="warning">
+  **Sebelum go-live, pastikan:**
+  - Ganti mode dari `staging` ke `production`
+  - Update API key dengan production key
+  - Register production callback URL
+  - Test semua flow dengan transaksi real
+</Callout>
+
+---
+
+## Referensi
+
+<Cards>
+  <Card title="KiriminAja Developer Docs" href="https://developer.kiriminaja.com/docs/introduction" />
+  <Card title="Postman Collection" href="https://developer.kiriminaja.com/postman" />
+  <Card title="Coverage Area Mapping" href="https://developer.kiriminaja.com/coverage" />
+</Cards>
