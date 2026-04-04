@@ -1,0 +1,91 @@
+---
+title: "Dokumentasi & Flow Sistem Finance Adi Daya ERP"
+description: "Panduan lengkap alur kerja dan penjelasan fitur sistem finance khusus perusahaan outsourcing Adi Daya."
+date: "2026-04-04"
+---
+
+# Dokumentasi Sistem Finance - Adi Daya ERP
+
+Sistem Keuangan (Finance ERP) "Adi Daya" dirancang secara khusus untuk mengakomodasi model bisnis perusahaan outsourcing (penyedia jasa pekerja seperti *Cleaning Service*, *Security*, *IT Support*, dll). Berbeda dengan perusahaan dagang atau manufaktur biasa, inti dari aliran dana di Adi Daya berpusat pada **Kontrak Klien (Project)** dan pencadangan **Biaya Tenaga Kerja (SDM)**.
+
+---
+
+## 🔄 Alur Sistem (Flow Bisnis Utama)
+
+Pemahaman flow atau alur kas sangat penting untuk memastikan pembukuan seimbang (*balanced*) dan *profit* bulanan bisa dilacak akurat perl klien. Berikut adalah urutan kejadian (*life cycle*) transaksi dalam sistem ini:
+
+1. **Kontrak (Project / Client)** 
+   Sebuah *project* dimulai ketika klien setuju dengan kontrak. Detail nilai kontrak, jumlah tenaga kerja yang ditempatkan, dan biaya material/operasional dicatat.
+2. **Invoice & Penagihan (Accounts Receivable)**
+   Berdasarkan nilai kontrak, sistem tagihan membuat *Invoice* yang dikirimkan ke Klien (biasanya skema *billing* bulanan). Status piutang kini tercatat.
+3. **Penerimaan Kas (Treasury)**
+   Saat klien membayar invoice, kas masuk ke *Bank Operasional* perusahaan. Inflow ini direkonsiliasi.
+4. **Pembayaran Gaji SDM (Payroll)**
+   Pendapatan yang masuk digunakan untuk membayar beban terbesar perusahaan: **Gaji Pekerja Outsourcing**. Potongan seperti BPJS Tenaga Kerja & Kesehatan juga harus dihitung dan dibukukan sebagai hutang institusi sampai dibayarkan.
+5. **Pembayaran Vendor Operasional (Accounts Payable)**
+   Selain gaji, pengeluaran diperlukan untuk perlengkapan (seperti seragam, cairan pembersih, dsb). Hal ini ditangani di *AP*.
+6. **Alokasi Profit Klien (Project Tracking)**
+   Dari *Revenue*, dikurangi *Cost SDM*, dikurangi *Cost Operasional*, muncullah **Profit per Klien / Project** yang bisa di-*tracking* secara real-time.
+7. **Jurnal & Laporan (GL, Tax, Reporting)**
+   Semua arus tersebut ter- *tagging* secara otomatis menjadi Jurnal Umum di *Buku Besar*, melalui rekonsiliasi PPh/PPN di menu *Tax*, dan bermuara di Laporan Laba Rugi Perusahaan (*Profit & Loss*).
+
+---
+
+## 📋 Penjelasan Per Modul & Fitur
+
+Di bawah ini adalah penjelasan mendetail untuk masing-masing modul di Sidebar:
+
+### 1. 📊 Executive Dashboard (Pusat Kendali)
+Dashboard bertindak sebagai alat *monitoring* "Kesehatan Perusahaan" bagi level *C-Level / Eksekutif*.
+* **Widget Ringkasan Utama**: Menampilkan indikator makro seperti *Saldo Kas*, *Total Piutang AR* (Uang Klien yang belum masuk), *Total Revenue Bulan ini*, dan *Total Biaya SDM*.
+* **Cashflow Insight**: Grafik aliran kas Inflow vs Outflow, memastikan perusahaan memiliki uang darurat untuk membayar gaji tepat waktu meskipun klien telat bayar.
+* **Pending Approvals**: *To-do list* bagi manajer untuk meninjau *Approval* gaji SDM sebelum dana ditarik dari kas.
+
+### 2. 💼 Project / Client Management (Jantung Sistem)
+Ini adalah modul Master Data yang membedakan ERP Adi Daya dari *software accounting* biasa.
+* **Master Kontrak**: Melacak data klien, jenis layanan, total *revenue*, durasi aktif, serta berapa total tenaga kerja (SDM) yang dikontrakkan kesana.
+* **Cost & Profit Tracking**: Menggabungkan metrik pendapatan bulanan klien dikurangi beban SDM yang di-*assign* dan material yang digunakan, menjadikan sistem mampu memisahkan Project mana yang margin-nya menyempit dan mana yang stabil.
+
+### 3. 🧾 Accounts Receivable (AR) / Piutang Dagang
+Modul siklus perputaran uang masuk. Fitur ini meminimalisir telat bayar dari Klien.
+* **Invoice Generator**: Template dokumen *Billing* modern dan sesuai PSAK serta Perpajakan, yang merinci jasa layanan bulanan dan PPN 11%.
+* **Aging Report (Umur Piutang)**: Melihat kelompok piutang klien mana yang sudah melampaui waktu jatuh tempo (*> 30 Hari, > 60 Hari, > 90 Hari*).
+
+### 4. 👥 Payroll / SDM (Manajemen Biaya Tenaga Kerja)
+Fokus beban terbesar *outsourcing* ada pada perhitungan kompensasi dan tunjangan.
+* **Tabel Rincian Gaji SDM**: Melihat daftar pekerja, alokasi project yang ia tempati, *Gaji Pokok*, *Tunjangan*, hingga potongan *BPJS*.
+* **Simulasi Jurnal Otomatis**: Secara sistem, ERP langsung memenggal pembayaran ini secara proporsional. Secara spesifik: `Debit (Beban Gaji + Tunjangan)` dan `Kredit (Kas + Hutang Titipan BPJS)`. 
+
+### 5. 💳 Accounts Payable (AP) / Hutang Dagang
+Menangani pengadaan operasional non-gaji.
+* **Pembayaran Vendor**: *Tracking* hutang untuk pembelian *supply* dari *supplier* /vendor seperti pembelian kain pel, seragam satpam, laptop sewa, dsb.
+* Memastikan 3-*way matching* dari PO, Penerimaan Barang, hingga Invoice vendor valid sebelum dibayar.
+
+### 6. 🏦 Treasury (Kas & Bank)
+Fokus utama modul adalah melihat sirkulasi likuiditas uang riil perusahaan.
+* **Bank Reconciliation**: *Import* rekening koran BCA/Mandiri untuk diverifikasi silang (di-*match*) dengan catatan buku kas perusahaan.
+* **Cashflow Insight Khusus**: Indikator *benchmark* ketat bulanan untuk membandingkan penerimaan *Billing* (*inflow* klien) langsung melawan beban *Payroll* (*outflow* SDM).
+
+### 7. 📖 General Ledger (Buku Besar)
+Tulang punggung penjurnalan akuntansi standar.
+* **Tagging Transaksi Klien/Project**: Tidak seperti GL di masa lalu, setiap *Journal Voucher (JV)* memiliki tautan tag Project. Sehingga saat CFO menganalisa pengeluaran 12 Juta Rupiah, sistem tahu bahwasanya "12 Juta Ini untuk Security di Cabang Bank Nusantara".
+* **Audit Trail**: Melacak perubahan data jurnal historis untuk kepentingan audit regulasi.
+
+### 8. 📈 Budgeting (Pengendalian Anggaran)
+Mengontrol limit operasional *Office* dan alur batas kerugian operasional klien.
+* **Budget vs Actual (BvA)**: Menetapkan *cap* maksimum biaya (untuk seragam, tools) pada project tertentu, misalnya 10 Juta. Bila telah menyentuh limit (contoh 90%), sistem masuk ke taraf *Critical*.
+
+### 9. 🛡️ Perpajakan (Tax Management)
+Mengotomasi kalkulasi pajak yang mengikat di Indonesia.
+* **Pajak SDM (PPh 21)**: Menampilkan rekap kewajiban potong pajak dan lapor atas upah seluruh tenaga kerja.
+* **Pajak Jasa (PPh 23)**: Bukti potong jasa outsourcing.
+* **PPN (Pajak Keluaran Billing)**: Merekap e-Faktur terkirim pada Klien setiap bulan secara kolektif sesuai nilai *Revenue*.
+
+### 10. 📑 Reporting (Laporan Keuangan Lanjut)
+Hasil akhir sistem, *Output* dari operasional sebulan penuh.
+* **Laba Rugi (P&L)**: Di-_breakdown_ menjadi klasifikasi *Gross Profit Klien* (Pendapatan Klien dikurangi Beban Pokok *Gaji + Opex Lapangan*) dan *Net Profit* setelah dikurangi Beban Eksekutif / Kantor Pusat (Internal).
+* **Neraca (Balance Sheet)**: Gambaran wutuh Liabilitas (termasuk dana BPJS yang mengendap sebelum disetor) melawan Aset.
+* **Trial Balance**: Neraca Saldo ringkasan untuk verifikasi perpindahan antar dompet COA (*Chart of Accounts*).
+
+---
+> Dibangun dan dikustomisasi dengan teknologi Next.js & React untuk Antarmuka yang responsif dan performa superior. Sistem ini terpadu menjadi satu ekosistem sehingga tim Keuangan Adi Daya tidak perlu lagi melakukan _double entry_ antara penggajian SDM dan pembukuan Jurnal Utama.
